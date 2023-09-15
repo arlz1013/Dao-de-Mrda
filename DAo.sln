@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAO", "DAo\DAO.csproj", "{CFB13179-3140-4A16-ABCB-8FDAEF774217}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DAO", "DAo\DAO.csproj", "{CFB13179-3140-4A16-ABCB-8FDAEF774217}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASP", "WebApplication1\ASP.csproj", "{F9968F10-C18B-426E-AACF-C23054D26835}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{CFB13179-3140-4A16-ABCB-8FDAEF774217}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFB13179-3140-4A16-ABCB-8FDAEF774217}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFB13179-3140-4A16-ABCB-8FDAEF774217}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9968F10-C18B-426E-AACF-C23054D26835}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9968F10-C18B-426E-AACF-C23054D26835}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9968F10-C18B-426E-AACF-C23054D26835}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9968F10-C18B-426E-AACF-C23054D26835}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

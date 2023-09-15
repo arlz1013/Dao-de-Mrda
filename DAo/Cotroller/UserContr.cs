@@ -1,8 +1,7 @@
-﻿/*
+﻿
 using DAO.Model._dao;
 using DAO.Model.Datas;
 using DAO.View;
-using Google.Protobuf.WellKnownTypes;
 using System;
 using System.Data;
 
@@ -12,70 +11,271 @@ namespace DAO.Cotroller
 {
     class UserContr
     {
-        private look view = new look();
-        private IUsers dao;
+        private static IUsers dao = UsFac.CreateUsDAO();
 
-        public UserContr(look view, IUsers dao)
+
+        public UserContr() 
         {
-            this.dao = dao ?? throw new ArgumentNullException(nameof(dao));
+            while (Send() == true)
+            {
+                ReadKey();
+                Clear();
+            }
         }
 
-        public bool RegisterUs(User us)
+        private bool Send() 
+        {
+            bool data = true;
+            string Acc;
+            WriteLine("DAO...");
+
+            WriteLine("\nMENU DE OPCIONES:");
+            WriteLine("|I| Insert");
+            WriteLine("|U| Update");
+            WriteLine("|D| Delete");
+            WriteLine("|L| List");
+            WriteLine("|A| Average");
+            WriteLine("Exit");
+            Acc = ReadLine()?.ToUpper();
+            if (!string.IsNullOrEmpty(Acc))
+            {
+                try
+                {
+                    switch (Acc)
+                    {
+                        case "L":
+                            ListUs();
+                            break;
+                        case "I":
+                            InsertUs();
+                            break;
+                        case "U":
+                            UpdateUs();
+                            break;
+                        case "D":
+                            DeleteUs();
+                            break;
+                        case "A":
+                            Average();
+                            break;
+                        default:
+                            WriteLine("Fuck You!!!");
+                            data = false;
+                            break;
+                    }
+                }
+                catch (DAOExept ex)
+                {
+                    WriteLine("Fuck You " + ex.Message);
+                }
+            }
+            
+            return data;
+        }
+        private static void InsertUs()
         {
             try
             {
-                return dao.Register(us);
+                User us = InputEmpleado();
+                if (dao.Register(us))
+                {
+                    WriteLine("Susccesful: " + us.Id);
+                    WriteLine("\n\nCreado: " + us);
+                }
+                else
+                {
+                    WriteLine("Error");
+                }
             }
-            catch (DAOExept ex)
+            catch (DAOExept e)
             {
-                WriteLine("Error to Register User" + ex.Message);
-                return false;
+                WriteLine("Error to insert Data: " + e.Message);
             }
         }
-        public bool UpdateUs(User us)
+
+        private static void UpdateUs()
         {
+            int id = InputInt("Insert Id");
+            User us = dao.GetId(id);
+            WriteLine("------------Datos originales------------");
+            WriteLine(us);
+            WriteLine("Ingrese los nuevos datos");
+
+            string name = InputString("Insert Nombre");
+            string date = InputDateNow();
+            double n1 = InputDouble("Insert Alto");
+            double n2 = InputDouble("Insert Ancho");
+            double n3 = InputDouble("Insert Valor x m^2");
+
+            us = new User(id, name, n1, n2, n3, date);
             try
             {
-                return dao.Update(us);
+                if (dao.Update(us))
+                {
+                    WriteLine("Actualización exitosa");
+                }
+                else
+                {
+                    WriteLine("Error al actualizar el empleado.");
+                }
             }
-            catch (DAOExept ex)
+            catch (DAOExept e)
             {
-                WriteLine("Error to Update User" + ex.Message);
-                return false;
+                WriteLine("Error al actualizar el empleado: " + e.Message);
             }
         }
-        public bool DeleteUs(User us)
+
+        private static void DeleteUs()
         {
+            int id = InputInt("Insert Id");
+            User us = null;
+
             try
             {
-                return dao.Delete(us);
+                us = dao.GetId(id);
             }
-            catch (DAOExept ex)
+            catch (DAOExept daoe)
             {
-                WriteLine("Error to Delete User" + ex.Message);
-                return false;
+                WriteLine("Error: " + daoe.Message);
+            }
+
+            if (us != null && dao.Delete(us))
+            {
+                WriteLine("Empleado eliminado: " + us.Id);
+            }
+            else
+            {
+                WriteLine("Error al eliminar el empleado.");
             }
         }
-        public void LookUs()
+
+        private static void Average() 
+        {
+            int id = InputInt("Insert Id");
+            User us = null;
+            List<double> da = null;
+            try
+            {
+                us = dao.GetId(id);
+                da = dao.Average(us);
+            }
+            catch (DAOExept daoe)
+            {
+                WriteLine("Error: " + daoe.Message);
+            }
+            WriteLine("Info About Id: " + us.Id);
+            WriteLine("Id\tNota1\tNota2\tNota3\tPromedio");
+            foreach (double i in da)
+            {
+                Write(i + "\t");
+            }
+            WriteLine("\n");
+
+        }
+
+        private static void ListUs()
         {
             try
             {
                 List<User> uss = dao.getData();
-                view.ViewUsers(uss);
+                foreach (User us in uss)
+                {
+                    WriteLine(us.ToString() + "\n");
+                }
             }
-            catch (DAOExept ex)
+            catch (DAOExept e)
             {
-                WriteLine("Error to Get User" + ex);
+                WriteLine("Error al obtener todos los empleados: " + e.Message);
+                WriteLine("StackTrace: " + e.StackTrace);
             }
         }
-        public void Average() 
+
+        private static User InputEmpleado()
         {
-            
+            string name = InputString("Insert Nombre");
+            string date = InputDateNow();
+            double n1 = InputDouble("Insert Alto");
+            double n2 = InputDouble("Insert Ancho");
+            double n3 = InputDouble("Insert Valor x m^2");
+
+            return new User( name, n1, n2, n3, date);
         }
-        public void Averages() 
+
+        private static string InputString(string message)
         {
-            
+            string s;
+            while (true)
+            {
+                WriteLine(message);
+                s = ReadLine()?.Trim();
+                if (!string.IsNullOrEmpty(s) && s.Length >= 2)
+                {
+                    break;
+                }
+                else
+                {
+                    WriteLine("La longitud de la cadena debe ser >= 2");
+                }
+            }
+            return s;
+        }
+
+        private static double InputDouble(string message)
+        {
+            double s;
+            while (true)
+            {
+                try
+                {
+                    WriteLine(message);
+                    if (double.TryParse(ReadLine(), out s))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        WriteLine("Error de formato de número");
+                    }
+                }
+                catch (FormatException)
+                {
+                    WriteLine("Error de formato de número");
+                }
+            }
+            return s;
+        }
+
+        private static int InputInt(string message) 
+        {
+            int s;
+            while (true)
+            {
+                try
+                {
+                    WriteLine(message);
+                    if (int.TryParse(ReadLine(), out s))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        WriteLine("Error de formato de número");
+                    }
+                }
+                catch (FormatException)
+                {
+                    WriteLine("Error de formato de número");
+                }
+            }
+            return s;
+        }
+
+        private static string InputDateNow()
+        {
+            DateTime Fecha = DateTime.Now;
+            string FormatoFechaSql = Fecha.ToString("yyyy-MM-dd HH:mm:ss");
+            WriteLine(FormatoFechaSql);
+            return FormatoFechaSql;
         }
     }
 }
-*/

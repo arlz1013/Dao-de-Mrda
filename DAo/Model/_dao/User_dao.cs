@@ -27,20 +27,21 @@ namespace DAO.Model._dao
             _connection = connection ?? throw new ArgumentNullException(nameof(connection));
         }
 
-        public bool Register(User user)
+        public bool Register(User us)
         {
             bool send = false;
 
             try
             {
-                string data =  $"INSERT INTO Alumnos (Namex, Surname, Grade, Fecha , Not1, Not2, Not3) values ('{user.Name}', '{user.Surname}', {user.Grade} ,' {user.Date} ', {user.No1}, {user.No2}, {user.No3})";
+                string data =  $"INSERT INTO Alumnos (Name, Date, height, weight , Square_Meter) values ('{us.Name}', '{us.Date}', {us.Height}, {us.Weight}, {us.Square_Meter});";
+                WriteLine(data);
                 ProveState();
                 using ( MySqlCommand cmd = new MySqlCommand(data, _connection))
                 {
                     cmd.ExecuteNonQuery();
                     send = true;
 
-                    user.Id = (int)cmd.LastInsertedId;
+                    us.Id = (int)cmd.LastInsertedId;
                     send = true;
                 }
 
@@ -58,7 +59,7 @@ namespace DAO.Model._dao
             bool send = false;
             try
             {
-                string data = $"UPDATE Alumnos SET Namex = '{user.Name}', Surname = '{user.Surname}', Grade = {user.Grade}, Fecha = '{user.Date}' ,Not1 = {user.No1}, Not2 = {user.No2}, Not3 = {user.No3} WHERE id = {user.Id}";
+                string data = $"UPDATE Alumnos SET Name = '{user.Name}', Date = '{user.Date}', height = {user.Height}, weight = {user.Weight}, Square_Meter = {user.Square_Meter} WHERE id = {user.Id}";
                 WriteLine(data);
                 ProveState();
                 using (MySqlCommand cmd = new MySqlCommand(data, _connection))
@@ -206,8 +207,8 @@ namespace DAO.Model._dao
 
         public  List<double> Average(User us) 
         {
-            double Ave = (us.No1 * 0.3) + (us.No2 * 0.3) + (us.No3 * 0.4) ;
-            return new List<double>{us.Id, us.No1, us.No2 , us.No3 ,Ave};
+            double Ave = (us.Height * us.Weight) * us.Square_Meter;
+            return new List<double>{us.Id, us.Height, us.Weight , us.Square_Meter ,Ave};
         }
 
         private void ProveState()
@@ -221,14 +222,12 @@ namespace DAO.Model._dao
         private User CreateUser(MySqlDataReader reader)
         {
             int ide = reader.IsDBNull(reader.GetOrdinal("id")) ? 0 : reader.GetInt32("id");
-            string nm = reader.GetString("Namex");
-            string srnm = reader.GetString("Surname");
-            int grd = reader.GetInt32("Grade");
-            string dttm = reader.GetString("Fecha");
-            double n1 = reader.GetDouble("Not1");
-            double n2 = reader.GetDouble("Not2");
-            double n3 = reader.GetDouble("Not3");
-            return new User(ide, nm, srnm, grd, n1, n2,n3,dttm);
+            string nm = reader.GetString("Name");
+            string dt = reader.GetString("Date");
+            double hg = reader.GetDouble("height");
+            double wg = reader.GetDouble("weight");
+            double m2 = reader.GetDouble("Square_Meter");
+            return new User(ide, nm, hg, wg, m2, dt);
 
         }
 
